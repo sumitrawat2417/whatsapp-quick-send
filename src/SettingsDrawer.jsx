@@ -1,4 +1,4 @@
-import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, ChevronLeft } from 'lucide-react';
+import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, ChevronLeft, Sun, Moon, Monitor, Check } from 'lucide-react';
 import localforage from 'localforage';
 import './SettingsDrawer.css';
 
@@ -53,6 +53,46 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
 
       {/* Scrollable Content (slides over header) */}
       <div className="settings-content">
+
+        {/* ─── Appearance ───────────────────────── */}
+        <div className="settings-section">
+          <div className="section-label">Appearance</div>
+          <div className="settings-card">
+            <div className="settings-row clickable" onClick={() => updateSetting('theme', 'system')}>
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <Monitor size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>System Default</h4>
+                </div>
+              </div>
+              {settings.theme === 'system' && <Check size={20} color="var(--color-primary)" />}
+            </div>
+            <div className="settings-row clickable" onClick={() => updateSetting('theme', 'light')}>
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <Sun size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>Light Mode</h4>
+                </div>
+              </div>
+              {settings.theme === 'light' && <Check size={20} color="var(--color-primary)" />}
+            </div>
+            <div className="settings-row clickable" onClick={() => updateSetting('theme', 'dark')}>
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <Moon size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>Dark Mode</h4>
+                </div>
+              </div>
+              {settings.theme === 'dark' && <Check size={20} color="var(--color-primary)" />}
+            </div>
+          </div>
+        </div>
 
         {/* ─── General ──────────────────────────── */}
         <div className="settings-section">

@@ -6,6 +6,7 @@ const SETTINGS_KEY = 'wa_quick_send_settings';
 // Default settings values
 const DEFAULT_SETTINGS = {
   countryCode: '91',
+  theme: 'system', // 'light', 'dark', 'system'
 };
 
 export function useSettings() {
@@ -16,6 +17,11 @@ export function useSettings() {
     loadSettings();
   }, []);
 
+  // Apply theme whenever it changes
+  useEffect(() => {
+    applyTheme(settings.theme);
+  }, [settings.theme]);
+
   const loadSettings = async () => {
     try {
       const stored = await localforage.getItem(SETTINGS_KEY);
@@ -25,6 +31,15 @@ export function useSettings() {
       }
     } catch (err) {
       console.error("Failed to load settings", err);
+    }
+  };
+
+  const applyTheme = (mode) => {
+    if (mode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
+    } else {
+      document.documentElement.classList.toggle('dark', mode === 'dark');
     }
   };
 
