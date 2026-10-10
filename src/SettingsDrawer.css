@@ -87,8 +87,7 @@
   background: var(--color-bg);
   position: relative;
   z-index: 10;
-  padding: 2rem 1.25rem;
-  padding-bottom: env(safe-area-inset-bottom, 3rem);
+  padding: 2rem 1.25rem 0;
 }
 
 /* ─── Section Groups ────────────────────────────────── */
@@ -242,7 +241,7 @@
 /* ─── Footer ────────────────────────────────────────── */
 .settings-footer {
   text-align: center;
-  padding: 1.5rem 1rem 0;
+  padding: 1.5rem 1rem calc(3rem + env(safe-area-inset-bottom));
   color: var(--color-text-3);
   font-size: 0.8rem;
 }
