@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./public/readme-logo.svg" width="100" alt="WA Quick Send Logo" />
+<img src="./public/readme-logo.png" width="120" alt="WA Quick Send Logo" />
 
 # WA Quick Send
 
