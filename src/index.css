@@ -1,0 +1,49 @@
+:root {
+  /* Core Brand Colors */
+  --primary: #25D366; /* WhatsApp Green */
+  --primary-hover: #128C7E;
+  
+  /* Dark Mode Palette */
+  --bg-dark: #0f172a; /* Deep slate background */
+  --bg-card: rgba(30, 41, 59, 0.7); /* Frosted glass panel */
+  
+  /* Text & Borders */
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.1);
+  
+  /* Typography */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+}
+
+/* Global Browser Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-height: 100vh;
+  /* Sleek modern background gradient */
+  background: radial-gradient(circle at top right, #1e293b, var(--bg-dark));
+  /* Disable pull-to-refresh on mobile web apps */
+  overscroll-behavior-y: none; 
+}
+
+#root {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
