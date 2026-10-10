@@ -1,9 +1,10 @@
-import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, ChevronLeft, Sun, Moon, Monitor, Check, FileText } from 'lucide-react';
+import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, ChevronLeft, Sun, Moon, Monitor, Check, FileText, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import localforage from 'localforage';
 import LegalModal from './LegalModal';
 import privacyPolicyMd from '../docs/privacy_policy_wa_quick_send.md?raw';
 import termsMd from '../docs/terms_and_conditions_wa_quick_send.md?raw';
+import howItWorksMd from '../docs/how_it_works.md?raw';
 import './SettingsDrawer.css';
 
 const HISTORY_KEY = 'wa_quick_send_history';
@@ -188,10 +189,10 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
               </div>
             </div>
 
-            <div className="settings-row clickable" onClick={() => alert("Help section coming soon!")}>
+            <div className="settings-row clickable" onClick={() => setActiveLegalDoc('help')}>
               <div className="row-info">
                 <div className="row-icon neutral">
-                  <Globe size={20} />
+                  <HelpCircle size={20} />
                 </div>
                 <div className="row-text">
                   <h4>How it works (Help)</h4>
@@ -311,6 +312,14 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
         <LegalModal 
           title="Terms & Conditions" 
           content={termsMd} 
+          onClose={() => setActiveLegalDoc(null)} 
+        />
+      )}
+
+      {activeLegalDoc === 'help' && (
+        <LegalModal 
+          title="How it works" 
+          content={howItWorksMd} 
           onClose={() => setActiveLegalDoc(null)} 
         />
       )}
