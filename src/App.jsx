@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { MessageCircle, Phone, Send, ScanLine, Type } from 'lucide-react';
+import { MessageCircle, Phone, Send, ScanLine, Type, History } from 'lucide-react';
 import { useOCR } from './useOCR';
+import { useHistory } from './useHistory';
 import ScannerModal from './ScannerModal';
+import HistoryDrawer from './HistoryDrawer';
 import './App.css';
 import './index.css';
 
@@ -9,9 +11,11 @@ function App() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [message, setMessage] = useState('');
   const [showScanner, setShowScanner] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   
-  // Bring in our custom OCR engine
+  // Bring in our custom OCR and History engines
   const { processImage, isScanning, scanProgress } = useOCR();
+  const { history, saveInteraction, updateName, deleteRecord } = useHistory();
 
   const handleSend = () => {
     // Basic formatting: remove all non-numeric characters from the input
@@ -24,6 +28,9 @@ function App() {
     if (cleanedNumber.length === 10) {
       cleanedNumber = '91' + cleanedNumber;
     }
+
+    // Save this interaction to our local database before leaving the app
+    saveInteraction(cleanedNumber, message);
 
     // Construct the WhatsApp Deep Link protocol
     const encodedMessage = encodeURIComponent(message);
@@ -43,16 +50,36 @@ function App() {
     setShowScanner(false); // Close modal on success
   };
 
+  // Called when a user taps a contact inside the History Drawer
+  const handleSelectContact = (selectedNumber, selectedMessage) => {
+    setPhoneNumber(selectedNumber);
+    setMessage(selectedMessage);
+    setShowHistory(false); // Close the drawer automatically
+  };
+
   return (
     <div className="app-container">
       
       {/* Header Section */}
-      <div className="header">
+      <div className="header" style={{ position: 'relative' }}>
         <div className="icon-wrapper">
           <MessageCircle size={32} color="white" />
         </div>
         <h1 className="title">WA Quick Send</h1>
         <p className="subtitle">Message instantly. No saving required.</p>
+        
+        {/* History Button (Top Right) */}
+        <button 
+          onClick={() => setShowHistory(true)} 
+          title="Recent History"
+          style={{
+            position: 'absolute', top: 0, right: 0, background: 'transparent',
+            border: 'none', color: 'var(--text-muted)', cursor: 'pointer',
+            padding: '0.5rem'
+          }}
+        >
+          <History size={28} />
+        </button>
       </div>
 
       {/* Form Section */}
@@ -110,6 +137,17 @@ function App() {
           processImage={processImage}
           isProcessing={isScanning}
           scanProgress={scanProgress}
+        />
+      )}
+
+      {/* Render the History Drawer if active */}
+      {showHistory && (
+        <HistoryDrawer 
+          onClose={() => setShowHistory(false)}
+          history={history}
+          updateName={updateName}
+          deleteRecord={deleteRecord}
+          onSelectContact={handleSelectContact}
         />
       )}
     </div>
