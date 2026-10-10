@@ -16,15 +16,17 @@ export default function ScannerModal({ onClose, onScanSuccess, processImage, isP
 
   // 1. Turn on the camera when the modal is opened (only if we aren't viewing a captured image)
   useEffect(() => {
+    let activeStream = null;
+
     async function startCamera() {
       if (capturedImage) return; // Don't start camera if we have an image
       try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
+        activeStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' }
         });
-        setStream(mediaStream);
+        setStream(activeStream);
         if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
+          videoRef.current.srcObject = activeStream;
         }
       } catch (err) {
         console.error("Camera access denied or unavailable", err);
@@ -35,6 +37,11 @@ export default function ScannerModal({ onClose, onScanSuccess, processImage, isP
     startCamera();
 
     return () => {
+      // Clean up the local stream reference
+      if (activeStream) {
+        activeStream.getTracks().forEach(track => track.stop());
+      }
+      // Fallback: cleanup the state reference just in case
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
