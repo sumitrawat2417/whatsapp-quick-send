@@ -1,4 +1,4 @@
-import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, ChevronLeft, Sun, Moon, Monitor, Check, FileText, HelpCircle } from 'lucide-react';
+import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, ChevronLeft, Sun, Moon, Monitor, Check, FileText, HelpCircle, Download } from 'lucide-react';
 import { useState } from 'react';
 import localforage from 'localforage';
 import LegalModal from './LegalModal';
@@ -9,10 +9,17 @@ import './SettingsDrawer.css';
 
 const HISTORY_KEY = 'wa_quick_send_history';
 
-export default function SettingsDrawer({ onClose, settings, updateSetting, history }) {
+export default function SettingsDrawer({ onClose, settings, updateSetting, history, deferredPrompt }) {
   const [activeLegalDoc, setActiveLegalDoc] = useState(null);
 
   // Clear all history from IndexedDB
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+    }
+  };
   const handleClearHistory = async () => {
     if (window.confirm("Are you sure you want to permanently delete all history?")) {
       await localforage.removeItem(HISTORY_KEY);
@@ -176,6 +183,20 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
                 </div>
               </div>
             </div>
+
+            {deferredPrompt && (
+              <div className="settings-row clickable" onClick={handleInstallApp}>
+                <div className="row-info">
+                  <div className="row-icon brand" style={{ background: 'var(--color-primary)', color: '#000' }}>
+                    <Download size={20} />
+                  </div>
+                  <div className="row-text">
+                    <h4 style={{ color: 'var(--color-primary)' }}>Install App</h4>
+                    <p>Add to Home Screen</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="settings-row">
               <div className="row-info">

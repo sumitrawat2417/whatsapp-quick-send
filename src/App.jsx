@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageCircle, Phone, Send, ScanLine, Type, History, Settings, CheckCircle2 } from 'lucide-react';
 import { useOCR } from './useOCR';
 import { useHistory } from './useHistory';
@@ -16,11 +16,23 @@ function App() {
   const [showScanner, setShowScanner] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
   
   // Bring in our custom engines
   const { processImage, isScanning, scanProgress } = useOCR();
   const { history, saveInteraction, updateName, deleteRecord } = useHistory();
   const { settings, updateSetting } = useSettings();
+
+  // Listen for the PWA install prompt
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
 
   // Validate format for green tick
   const isValidFormat = settings.countryCode 
@@ -207,6 +219,7 @@ function App() {
           settings={settings}
           updateSetting={updateSetting}
           history={history}
+          deferredPrompt={deferredPrompt}
         />
       )}
     </div>

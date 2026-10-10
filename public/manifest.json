@@ -1,0 +1,17 @@
+{
+  "name": "WA Quick Send",
+  "short_name": "Quick Send",
+  "start_url": "/whatsapp-quick-send/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "description": "Send WhatsApp messages without saving contacts.",
+  "icons": [
+    {
+      "src": "pwa-icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
