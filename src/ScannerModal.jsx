@@ -112,14 +112,9 @@ export default function ScannerModal({ onClose, onScanSuccess, processImage, isP
         
         {/* Full screen loading spinner while Tesseract is analyzing the frozen snapshot */}
         {isProcessing && (
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
-            background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', 
-            justifyContent: 'center', alignItems: 'center', color: 'var(--primary)',
-            zIndex: 10
-          }}>
-            <Loader2 size={48} style={{ animation: 'spin 1s linear infinite', marginBottom: '1rem' }} />
-            <p style={{ fontWeight: 600, color: 'white' }}>Extracting text... {scanProgress}%</p>
+          <div className="scan-loading">
+            <Loader2 size={48} color="var(--color-primary)" style={{ animation: 'spin 1s linear infinite' }} />
+            <p>Extracting text... {scanProgress}%</p>
           </div>
         )}
       </div>

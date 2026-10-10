@@ -61,24 +61,20 @@ function App() {
     <div className="app-container">
       
       {/* Header Section */}
-      <div className="header" style={{ position: 'relative' }}>
+      <div className="header">
         <div className="icon-wrapper">
-          <MessageCircle size={32} color="white" />
+          <MessageCircle size={24} color="white" />
         </div>
-        <h1 className="title">WA Quick Send</h1>
-        <p className="subtitle">Message instantly. No saving required.</p>
+        <h1 className="title">WA Quick Send.</h1>
+        <p className="subtitle">Message anyone instantly. No contact saving.</p>
         
         {/* History Button (Top Right) */}
         <button 
+          className="history-btn"
           onClick={() => setShowHistory(true)} 
           title="Recent History"
-          style={{
-            position: 'absolute', top: 0, right: 0, background: 'transparent',
-            border: 'none', color: 'var(--text-muted)', cursor: 'pointer',
-            padding: '0.5rem'
-          }}
         >
-          <History size={28} />
+          <History size={22} />
         </button>
       </div>
 

@@ -1,48 +1,31 @@
+/* ─── Modal Overlay ─────────────────────────────────── */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(10px);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--color-bg);
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  animation: fadeIn 0.3s ease;
+  max-width: 430px;
+  margin: 0 auto;
+  animation: fadeIn 200ms ease;
 }
 
+/* ─── Modal Header ──────────────────────────────────── */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  color: white;
 }
 
 .modal-header h3 {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--color-text-1);
 }
 
-.close-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
+/* ─── Camera Video Container ────────────────────────── */
 .video-container {
   flex: 1;
   position: relative;
@@ -53,7 +36,8 @@
   margin: 0 1rem;
   border-radius: 20px;
   background: #000;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
 }
 
 .video-feed {
@@ -62,13 +46,14 @@
   object-fit: cover;
 }
 
+/* ─── Target Scanning Box ───────────────────────────── */
 .target-box {
   position: absolute;
   width: 85%;
   height: 120px;
-  border: 2px solid var(--primary);
+  border: 2px solid var(--color-primary);
   border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6); /* Creates the dim background around the clear box */
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -77,65 +62,112 @@
 .target-box::after {
   content: "Align phone number here";
   color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
   font-weight: 500;
   margin-top: 160px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
 }
 
+/* ─── Bottom Controls ───────────────────────────────── */
 .modal-controls {
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding-bottom: env(safe-area-inset-bottom, 2rem); /* Support for iPhone bottom bar */
+  gap: 0.8rem;
+  padding-bottom: env(safe-area-inset-bottom, 1.5rem);
 }
 
+/* Primary capture button */
 .capture-btn {
-  background: var(--primary);
-  color: white;
+  background: var(--grad-hero);
+  color: #FFFFFF;
   border: none;
-  padding: 1.25rem;
-  border-radius: 16px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  height: 58px;
+  border-radius: 100px;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
+  box-shadow: var(--shadow-float);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.capture-btn:hover {
+  opacity: 0.92;
+}
+
+.capture-btn:active {
+  transform: scale(0.97);
+  opacity: 0.88;
 }
 
 .capture-btn:disabled {
-  opacity: 0.5;
+  background: var(--color-border-med);
+  box-shadow: none;
+  color: var(--color-text-3);
   cursor: not-allowed;
+  opacity: 1;
 }
 
+/* Secondary upload button */
 .upload-label {
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
-  padding: 1.1rem;
-  border-radius: 12px;
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  height: 50px;
+  border-radius: 100px;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1.5px solid var(--color-border-med);
+  transition: all 100ms ease;
+}
+
+.upload-label:hover {
+  background: var(--color-surface);
+}
+
+.upload-label:active {
+  transform: scale(0.96);
 }
 
 .upload-input {
   display: none;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ─── Loading Overlay ───────────────────────────────── */
+.scan-loading {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 15, 26, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 20px;
 }
 
+.scan-loading p {
+  font-weight: 600;
+  color: var(--color-text-1);
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+/* ─── Spinner Animation ─────────────────────────────── */
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
