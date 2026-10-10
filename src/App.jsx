@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageCircle, Phone, Send, ScanLine, Type, History, Settings } from 'lucide-react';
+import { MessageCircle, Phone, Send, ScanLine, Type, History, Settings, CheckCircle2 } from 'lucide-react';
 import { useOCR } from './useOCR';
 import { useHistory } from './useHistory';
 import { useSettings } from './useSettings';
@@ -21,6 +21,11 @@ function App() {
   const { processImage, isScanning, scanProgress } = useOCR();
   const { history, saveInteraction, updateName, deleteRecord } = useHistory();
   const { settings, updateSetting } = useSettings();
+
+  // Validate format for green tick
+  const isValidFormat = settings.countryCode 
+    ? phoneNumber.length === 10 
+    : phoneNumber.length >= 10 && phoneNumber.length <= 15;
 
   const handleSend = () => {
     // Basic formatting: remove all non-numeric characters from the input
@@ -50,14 +55,27 @@ function App() {
     setShowScanner(true);
   };
 
+  const setFormattedPhoneNumber = (rawNumber) => {
+    let val = rawNumber.replace(/\D/g, '');
+    if (settings.countryCode) {
+      // If the scanned/pasted number starts with the country code, strip it to avoid duplication
+      if (val.startsWith(settings.countryCode) && val.length > 10) {
+        val = val.substring(settings.countryCode.length);
+      }
+      setPhoneNumber(val.substring(0, 10)); // max 10 digits when country code is fixed
+    } else {
+      setPhoneNumber(val.substring(0, 15)); // standard international max
+    }
+  };
+
   const handleScanSuccess = (extractedNumber) => {
-    setPhoneNumber(extractedNumber);
+    setFormattedPhoneNumber(extractedNumber);
     setShowScanner(false); // Close modal on success
   };
 
   // Called when a user taps a contact inside the History Drawer
   const handleSelectContact = (selectedNumber, selectedMessage) => {
-    setPhoneNumber(selectedNumber);
+    setFormattedPhoneNumber(selectedNumber);
     setMessage(selectedMessage);
     setShowHistory(false); // Close the drawer automatically
   };
@@ -105,17 +123,32 @@ function App() {
         <div className="form-group">
           <label className="label">Phone Number</label>
           <div className="input-container">
-            <Phone size={20} className="input-icon" />
+            {settings.countryCode ? (
+              <div className="country-prefix">
+                +{settings.countryCode}
+              </div>
+            ) : (
+              <Phone size={20} className="input-icon" />
+            )}
+            
             <input 
               type="tel" 
-              className="input-field" 
-              placeholder="e.g. +1 234 567 8900" 
+              className={`input-field ${settings.countryCode ? 'with-prefix' : ''}`} 
+              placeholder="e.g. 98765 43210" 
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={(e) => setFormattedPhoneNumber(e.target.value)}
             />
-            <button className="action-icon" onClick={handleScanClick} title="Scan Number" aria-label="Scan number from image">
-              <ScanLine size={20} />
-            </button>
+            
+            <div className="input-actions-right">
+              {isValidFormat && (
+                <div className="valid-tick">
+                  <CheckCircle2 size={20} />
+                </div>
+              )}
+              <button className="action-icon" onClick={handleScanClick} title="Scan Number" aria-label="Scan number from image">
+                <ScanLine size={20} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -137,7 +170,7 @@ function App() {
         <button 
           className="submit-btn" 
           onClick={handleSend}
-          disabled={!phoneNumber.trim()} 
+          disabled={!phoneNumber.trim() || !isValidFormat} 
         >
           <span>Open in WhatsApp</span>
           <Send size={18} />
