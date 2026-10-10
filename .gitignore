@@ -3,8 +3,6 @@ dist/
 dist-ssr/
 *.local
 
-# Internal documentation
-docs/
 
 # Editor directories and files
 .vscode/
