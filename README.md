@@ -1,12 +1,13 @@
 <div align="center">
 
-<img src="./public/favicon.svg" width="100" alt="WA Quick Send Logo" />
+<img src="./public/readme-logo.svg" width="100" alt="WA Quick Send Logo" />
 
 # WA Quick Send
 
-### Send WhatsApp messages to anyone, instantly — no saving required.
+### A lightning-fast, offline-first Progressive Web App for smart WhatsApp messaging.
 
-[![Live App](https://img.shields.io/badge/🌐_Live_App-sumitrawat2417.github.io-25D366?style=for-the-badge)](https://sumitrawat2417.github.io/whatsapp-quick-send/)
+🚀 [Launch Live App](https://sumitrawat2417.github.io/whatsapp-quick-send/)
+
 [![MIT License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
 [![Open Source](https://img.shields.io/badge/Open_Source-❤️-red?style=for-the-badge)](https://github.com/sumitrawat2417/whatsapp-quick-send)
 
