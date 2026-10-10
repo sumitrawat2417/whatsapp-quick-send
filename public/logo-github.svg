@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200">
+  <defs>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34D399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Dark rounded background -->
+  <rect x="10" y="10" width="80" height="80" rx="20" fill="#1A1A2E" filter="url(#shadow)" />
+  
+  <g transform="translate(26, 26) scale(2)" fill="none" stroke="url(#brandGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Bubble -->
+    <path d="M16.1 20 A 9 9 0 1 1 20 16.1 L 22 22 Z" />
+    <!-- Zap -->
+    <polygon points="13 6, 7 13, 11.5 13, 11 18, 17 11, 12.5 11" fill="url(#brandGrad)" stroke="none" />
+  </g>
+</svg>

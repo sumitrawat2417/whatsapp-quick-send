@@ -1,5 +1,6 @@
 <div align="center">
-  <h1>⚡ WA Quick Send</h1>
+  <img src="./public/logo-github.svg" width="120" alt="WA Quick Send Logo" />
+  <h1>WA Quick Send</h1>
   <p><strong>Send WhatsApp messages to any number — instantly. No saving. No clutter.</strong></p>
 
   <p>
