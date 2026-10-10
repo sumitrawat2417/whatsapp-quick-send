@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Background Chat Bubble (Solid Emerald) -->
+  <path 
+    d="M15 25 C15 13.95 23.95 5 35 5 L65 5 C76.05 5 85 13.95 85 25 L85 60 C85 71.05 76.05 80 65 80 L40 80 L20 95 L20 80 C17 78 15 74 15 70 Z" 
+    fill="url(#grad1)" 
+  />
+  
+  <!-- Overlay Shape (Light Green/White) for the "Quick" Zap -->
+  <path 
+    d="M58 28 L40 55 L50 55 L42 72 L60 45 L50 45 Z" 
+    fill="#FFFFFF" 
+  />
+
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34D399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
