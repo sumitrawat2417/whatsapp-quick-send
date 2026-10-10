@@ -183,6 +183,6 @@ This project is licensed under the **MIT License** — see the [LICENSE](./LICEN
 ---
 
 <div align="center">
-  <p><em>Built by <a href="https://github.com/sumitrawat2417">Sumit Rawat</a></em></p>
+  <p><em>Built by <a href="https://github.com/sumitrawat2417">Forbit (Sumit Rawat)</a></em></p>
   <p><sub>Not affiliated with WhatsApp or Meta.</sub></p>
 </div>
