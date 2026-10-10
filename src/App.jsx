@@ -14,6 +14,11 @@ function App() {
     // Safety check: Don't do anything if no number exists after cleaning
     if (!cleanedNumber) return;
 
+    // Temporary fix: Default to India country code (+91) if a 10-digit number is entered
+    if (cleanedNumber.length === 10) {
+      cleanedNumber = '91' + cleanedNumber;
+    }
+
     // Construct the WhatsApp Deep Link protocol
     const encodedMessage = encodeURIComponent(message);
     const url = `https://wa.me/${cleanedNumber}${message ? `?text=${encodedMessage}` : ''}`;
