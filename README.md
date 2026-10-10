@@ -35,11 +35,11 @@ It is a **100% client-side web app** built on WhatsApp's official `wa.me` deep l
 
 | Home | Live Scan | History | Settings |
 |------|-----------|---------|----------|
-| <img src="./img/home.png" width="180" alt="Home Screen" /> | <img src="./img/contact_cam-scan.png" width="180" alt="Camera Scanner" /> | <img src="./img/history.png" width="180" alt="History Drawer" /> | <img src="./img/settings_p1.png" width="180" alt="Settings" /> |
+| ![Home Screen](img/home.png) | ![Camera Scanner](img/contact_cam-scan.png) | ![History Drawer](img/history.png) | ![Settings](img/settings_p1.png) |
 
 | Light Theme | Settings (More) |
 |-------------|-----------------|
-| <img src="./img/light_theme.png" width="180" alt="Light Theme" /> | <img src="./img/settings_p2.png" width="180" alt="Settings Page 2" /> |
+| ![Light Theme](img/light_theme.png) | ![Settings Page 2](img/settings_p2.png) |
 
 </div>
 
