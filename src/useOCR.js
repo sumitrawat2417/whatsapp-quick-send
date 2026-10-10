@@ -5,26 +5,28 @@ export function useOCR() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
 
-  // Helper function to find a phone number from a big block of messy OCR text
-  const extractPhoneNumber = (text) => {
-    // 1. Regex to find blocks of text that look like phone numbers (allowing spaces, dashes, parens)
-    // Starts with optional +, then a digit, then 8-25 characters of digits/spaces/punctuation, ending in a digit
+  // Helper function to extract valid phone numbers from a text block
+  const extractPhoneNumbersWithBBox = (tesseractLines) => {
+    const validNumbers = [];
     const regex = /(\+?[0-9][0-9\s\-.()]{8,25}[0-9])/g;
-    const matches = text.match(regex);
-    
-    if (matches) {
-      for (const match of matches) {
-        // 2. Clean the match to only contain digits and a leading plus
-        const cleaned = match.replace(/[^0-9+]/g, '');
-        const digitsOnly = cleaned.replace('+', '');
-        
-        // 3. If it has between 10 and 15 digits, it's a valid phone number!
-        if (digitsOnly.length >= 10 && digitsOnly.length <= 15) {
-          return cleaned;
+
+    for (const line of tesseractLines) {
+      const matches = line.text.match(regex);
+      if (matches) {
+        for (const match of matches) {
+          const cleaned = match.replace(/[^0-9+]/g, '');
+          const digitsOnly = cleaned.replace('+', '');
+          
+          if (digitsOnly.length >= 10 && digitsOnly.length <= 15) {
+            validNumbers.push({
+              text: cleaned,
+              bbox: line.bbox // { x0, y0, x1, y1 }
+            });
+          }
         }
       }
     }
-    return null;
+    return validNumbers;
   };
 
   const processImage = useCallback(async (imageSource) => {
@@ -32,27 +34,25 @@ export function useOCR() {
     setScanProgress(0);
 
     try {
-      // Run Tesseract entirely in the browser using WebAssembly
       const result = await Tesseract.recognize(
         imageSource,
-        'eng', // English language recognition
+        'eng', 
         { 
           logger: m => {
             if (m.status === 'recognizing text') {
-              // Update progress state (0 to 100)
               setScanProgress(Math.floor(m.progress * 100));
             }
           }
         }
       );
       
-      // Pass the massive text block to our regex parser
-      const foundNumber = extractPhoneNumber(result.data.text);
-      return foundNumber;
-
+      // Pass the detailed lines array to our parser to get bounding boxes
+      const foundNumbers = extractPhoneNumbersWithBBox(result.data.lines);
+      return { numbers: foundNumbers, naturalWidth: result.data.jobId ? null : null }; 
+      // Note: We don't need Tesseract to give us natural dimensions, we can get that from the DOM Image element.
     } catch (error) {
       console.error("OCR Scanning failed: ", error);
-      return null;
+      return { numbers: [] };
     } finally {
       setIsScanning(false);
       setScanProgress(0);

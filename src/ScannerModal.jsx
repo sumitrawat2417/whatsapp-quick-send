@@ -1,19 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
-import { X, Camera, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Camera, Image as ImageIcon, Loader2, RotateCcw } from 'lucide-react';
 import './ScannerModal.css';
 
 export default function ScannerModal({ onClose, onScanSuccess, processImage, isProcessing, scanProgress }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const imageRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [error, setError] = useState('');
+  
+  // New state for Live Text Mode
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [detectedNumbers, setDetectedNumbers] = useState([]);
+  const [naturalDimensions, setNaturalDimensions] = useState({ width: 1, height: 1 });
 
-  // 1. Turn on the camera when the modal is opened
+  // 1. Turn on the camera when the modal is opened (only if we aren't viewing a captured image)
   useEffect(() => {
     async function startCamera() {
+      if (capturedImage) return; // Don't start camera if we have an image
       try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' } // 'environment' requests the back camera on phones
+          video: { facingMode: 'environment' }
         });
         setStream(mediaStream);
         if (videoRef.current) {
@@ -27,90 +34,137 @@ export default function ScannerModal({ onClose, onScanSuccess, processImage, isP
     
     startCamera();
 
-    // Cleanup function: Turn off the camera when the modal is closed
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, []);
+  }, [capturedImage]); // Restart camera if capturedImage goes back to null
 
-  // 2. Handle the "Tap to Extract" button
   const handleCapture = async () => {
     if (!videoRef.current || !canvasRef.current) return;
     
     const video = videoRef.current;
     const canvas = canvasRef.current;
     
-    // Set the invisible canvas to the exact size of the video feed
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
-    // Grab a 1-millisecond frozen snapshot of the live video
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Convert that canvas drawing into a standard JPEG image string
     const imageDataUrl = canvas.toDataURL('image/jpeg');
+    setCapturedImage(imageDataUrl); // Switch UI to static image view
     
-    // Send it to the OCR engine. (User can now shake their hands all they want!)
-    const extractedNumber = await processImage(imageDataUrl);
+    // Shut down the camera stream to save battery
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+
+    const { numbers } = await processImage(imageDataUrl);
+    setDetectedNumbers(numbers);
     
-    if (extractedNumber) {
-      onScanSuccess(extractedNumber);
-    } else {
+    if (numbers.length === 0) {
       alert("No phone number found in that image. Please try again!");
+      setCapturedImage(null); // Go back to camera
     }
   };
 
-  // 3. Handle the "Upload from Gallery" fallback button
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = async (event) => {
-        const extractedNumber = await processImage(event.target.result);
-        if (extractedNumber) {
-          onScanSuccess(extractedNumber);
-        } else {
+        const imageDataUrl = event.target.result;
+        setCapturedImage(imageDataUrl);
+        
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          setStream(null);
+        }
+
+        const { numbers } = await processImage(imageDataUrl);
+        setDetectedNumbers(numbers);
+        if (numbers.length === 0) {
           alert("No phone number found in that image. Please try again!");
+          setCapturedImage(null); 
         }
       };
-      reader.readAsDataURL(file); // Convert uploaded file to image string
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleImageLoad = (e) => {
+    // Save the original resolution of the image so we can calculate bounding box percentages
+    setNaturalDimensions({
+      width: e.target.naturalWidth,
+      height: e.target.naturalHeight
+    });
   };
 
   return (
     <div className="modal-overlay">
-      
       <div className="modal-header">
-        <h3>Scan Number</h3>
+        <h3>{capturedImage ? 'Select a Number' : 'Scan Number'}</h3>
         <button className="close-btn" onClick={onClose} disabled={isProcessing}>
           <X size={24} />
         </button>
       </div>
 
-      <div className="video-container">
-        {error ? (
+      <div className="video-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        {capturedImage ? (
+          <div className="captured-image-wrapper">
+            <img 
+              ref={imageRef}
+              src={capturedImage} 
+              alt="Captured" 
+              className="captured-image" 
+              onLoad={handleImageLoad}
+            />
+            {/* Render bounding boxes over the image */}
+            {detectedNumbers.map((num, idx) => {
+              // Convert absolute coordinates to percentages so they scale perfectly
+              const top = (num.bbox.y0 / naturalDimensions.height) * 100;
+              const left = (num.bbox.x0 / naturalDimensions.width) * 100;
+              const width = ((num.bbox.x1 - num.bbox.x0) / naturalDimensions.width) * 100;
+              const height = ((num.bbox.y1 - num.bbox.y0) / naturalDimensions.height) * 100;
+              
+              return (
+                <div 
+                  key={idx}
+                  className="bbox-overlay"
+                  style={{
+                    top: `${top}%`,
+                    left: `${left}%`,
+                    width: `${width}%`,
+                    height: `${height}%`
+                  }}
+                  onClick={() => onScanSuccess(num.text)}
+                >
+                  {/* Optional: Add a label above the box */}
+                  <span className="bbox-label">{num.text}</span>
+                </div>
+              );
+            })}
+          </div>
+        ) : error ? (
           <p style={{ color: '#ff4444', textAlign: 'center', padding: '2rem' }}>{error}</p>
         ) : (
           <>
             <video 
               ref={videoRef} 
               autoPlay 
-              playsInline /* crucial for iOS Safari so it doesn't open full screen player */
+              playsInline 
               muted 
               className="video-feed" 
             />
-            {/* The visual targeting box the user aims with */}
             <div className="target-box"></div>
           </>
         )}
         
-        {/* Hidden canvas used to grab the snapshot behind the scenes */}
         <canvas ref={canvasRef} style={{ display: 'none' }} />
         
-        {/* Full screen loading spinner while Tesseract is analyzing the frozen snapshot */}
         {isProcessing && (
           <div className="scan-loading">
             <Loader2 size={48} color="var(--color-primary)" style={{ animation: 'spin 1s linear infinite' }} />
@@ -120,28 +174,43 @@ export default function ScannerModal({ onClose, onScanSuccess, processImage, isP
       </div>
 
       <div className="modal-controls">
-        <button 
-          className="capture-btn" 
-          onClick={handleCapture} 
-          disabled={isProcessing || error}
-        >
-          <Camera size={20} />
-          Tap to Extract Number
-        </button>
-
-        <label className="upload-label">
-          <ImageIcon size={20} />
-          Upload from Gallery
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleFileUpload} 
-            className="upload-input" 
+        {capturedImage ? (
+          <button 
+            className="capture-btn" 
+            onClick={() => {
+              setCapturedImage(null);
+              setDetectedNumbers([]);
+            }} 
             disabled={isProcessing}
-          />
-        </label>
+          >
+            <RotateCcw size={20} />
+            Scan Again
+          </button>
+        ) : (
+          <>
+            <button 
+              className="capture-btn" 
+              onClick={handleCapture} 
+              disabled={isProcessing || error}
+            >
+              <Camera size={20} />
+              Tap to Capture
+            </button>
+
+            <label className="upload-label">
+              <ImageIcon size={20} />
+              Upload from Gallery
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleFileUpload} 
+                className="upload-input" 
+                disabled={isProcessing}
+              />
+            </label>
+          </>
+        )}
       </div>
-      
     </div>
   );
 }
