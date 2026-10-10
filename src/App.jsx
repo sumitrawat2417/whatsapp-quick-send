@@ -6,6 +6,7 @@ import { useSettings } from './useSettings';
 import ScannerModal from './ScannerModal';
 import HistoryDrawer from './HistoryDrawer';
 import SettingsDrawer from './SettingsDrawer';
+import appLogo from './assets/logo.svg';
 import './App.css';
 import './index.css';
 
@@ -68,7 +69,7 @@ function App() {
       <div className="header">
         <div className="icon-wrapper">
           <img 
-            src={`${import.meta.env.BASE_URL}favicon.svg`} 
+            src={appLogo} 
             alt="App Logo" 
             style={{ width: '28px', height: '28px', filter: 'brightness(0) invert(1)' }} 
           />
