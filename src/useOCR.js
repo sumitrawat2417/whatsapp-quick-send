@@ -8,25 +8,46 @@ export function useOCR() {
   // Helper function to extract valid phone numbers from a text block
   const extractPhoneNumbersWithBBox = (tesseractLines) => {
     const validNumbers = [];
-    const regex = /(\+?[0-9][0-9\s\-.()]{8,25}[0-9])/g;
 
-    for (const line of tesseractLines) {
-      const matches = line.text.match(regex);
-      if (matches) {
-        for (const match of matches) {
-          const cleaned = match.replace(/[^0-9+]/g, '');
-          const digitsOnly = cleaned.replace('+', '');
-          
-          if (digitsOnly.length >= 10 && digitsOnly.length <= 15) {
-            validNumbers.push({
-              text: cleaned,
-              bbox: line.bbox // { x0, y0, x1, y1 }
-            });
+    for (const line of (tesseractLines || [])) {
+      // 1. Count how many digits are in the entire line
+      const digitsOnly = line.text.replace(/[^0-9]/g, '');
+      
+      // 2. If the line has 10 to 15 digits, we treat it as a phone number!
+      // This is highly forgiving of OCR mistakes, spaces, hyphens, and surrounding text.
+      if (digitsOnly.length >= 10 && digitsOnly.length <= 15) {
+        
+        // 3. Extract the clean number. We keep digits and a leading plus if it exists.
+        let cleaned = '';
+        let foundDigit = false;
+        
+        for (const char of line.text.split('')) {
+          if (char === '+' && !foundDigit) {
+            cleaned += char; // Keep a plus only if it appears before any digits
+          } else if (/[0-9]/.test(char)) {
+            cleaned += char;
+            foundDigit = true;
           }
         }
+
+        validNumbers.push({
+          text: cleaned,
+          bbox: line.bbox // Highlight the entire line for easy tapping
+        });
       }
     }
-    return validNumbers;
+    
+    // 4. Remove duplicates (if the exact same number appears multiple times)
+    const uniqueNumbers = [];
+    const seen = new Set();
+    for (const item of validNumbers) {
+      if (!seen.has(item.text)) {
+        seen.add(item.text);
+        uniqueNumbers.push(item);
+      }
+    }
+    
+    return uniqueNumbers;
   };
 
   const processImage = useCallback(async (imageSource) => {
