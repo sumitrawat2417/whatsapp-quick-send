@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { MessageCircle, Phone, Send, ScanLine, Type } from 'lucide-react';
+import { useOCR } from './useOCR';
+import ScannerModal from './ScannerModal';
 import './App.css';
 import './index.css';
 
 function App() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [message, setMessage] = useState('');
+  const [showScanner, setShowScanner] = useState(false);
+  
+  // Bring in our custom OCR engine
+  const { processImage, isScanning, scanProgress } = useOCR();
 
   const handleSend = () => {
     // Basic formatting: remove all non-numeric characters from the input
@@ -27,10 +33,20 @@ function App() {
     window.open(url, '_blank');
   };
 
-  const handleScan = (e) => {
+  const handleScanClick = (e) => {
     e.preventDefault();
-    // Placeholder for future OCR functionality
-    alert("OCR Scanning feature coming in a later step!");
+    setShowScanner(true);
+  };
+
+  const handleImageCaptured = async (imageDataUrl) => {
+    const extractedNumber = await processImage(imageDataUrl);
+    
+    if (extractedNumber) {
+      setPhoneNumber(extractedNumber);
+      setShowScanner(false); // Close modal on success
+    } else {
+      alert("No phone number found in that image. Please try again!");
+    }
   };
 
   return (
@@ -60,7 +76,7 @@ function App() {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
-            <button className="action-icon" onClick={handleScan} title="Scan Number" aria-label="Scan number from image">
+            <button className="action-icon" onClick={handleScanClick} title="Scan Number" aria-label="Scan number from image">
               <ScanLine size={20} />
             </button>
           </div>
@@ -91,6 +107,16 @@ function App() {
         </button>
 
       </div>
+
+      {/* Render the Scanner UI overlay if active */}
+      {showScanner && (
+        <ScannerModal 
+          onClose={() => setShowScanner(false)}
+          onScanComplete={handleImageCaptured}
+          isProcessing={isScanning}
+          scanProgress={scanProgress}
+        />
+      )}
     </div>
   );
 }
