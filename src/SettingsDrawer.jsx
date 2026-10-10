@@ -118,6 +118,7 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
         <div className="settings-section">
           <div className="section-label">About</div>
           <div className="settings-card">
+            
             <div className="settings-row">
               <div className="row-info">
                 <div className="row-icon brand">
@@ -129,6 +130,93 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
                 </div>
               </div>
             </div>
+
+            <div className="settings-row">
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <Shield size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>Not affiliated with WhatsApp</h4>
+                  <p>Independent deep-link generation tool</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="settings-row clickable" onClick={() => alert("Help section coming soon!")}>
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <Globe size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>How it works (Help)</h4>
+                </div>
+              </div>
+              <ChevronLeft size={16} color="var(--color-text-3)" style={{ transform: 'rotate(180deg)' }} />
+            </div>
+
+            <div className="settings-row clickable" onClick={() => alert("Privacy Policy coming soon!")}>
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <FileDown size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>Privacy Policy</h4>
+                </div>
+              </div>
+              <ChevronLeft size={16} color="var(--color-text-3)" style={{ transform: 'rotate(180deg)' }} />
+            </div>
+
+            <div className="settings-row clickable" onClick={() => alert("Terms of Use coming soon!")}>
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <FileDown size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>Terms of Use</h4>
+                </div>
+              </div>
+              <ChevronLeft size={16} color="var(--color-text-3)" style={{ transform: 'rotate(180deg)' }} />
+            </div>
+
+            <div className="settings-row clickable" onClick={() => window.open('mailto:sumitrawat2417@gmail.com')}>
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <Globe size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>Contact / Support</h4>
+                  <p>sumitrawat2417@gmail.com</p>
+                </div>
+              </div>
+              <ExternalLink size={16} color="var(--color-text-3)" />
+            </div>
+
+            <div className="settings-row clickable" onClick={() => window.location.reload()}>
+              <div className="row-info">
+                <div className="row-icon neutral">
+                  <Settings size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>Check for Updates</h4>
+                  <p>Tap to check and reload</p>
+                </div>
+              </div>
+              <ChevronLeft size={16} color="var(--color-text-3)" style={{ transform: 'rotate(180deg)' }} />
+            </div>
+
+            <div className="settings-row clickable" onClick={() => alert("To install, tap your browser menu and select 'Add to Home Screen'")}>
+              <div className="row-info">
+                <div className="row-icon brand" style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-danger)' }}>
+                  <FileDown size={20} />
+                </div>
+                <div className="row-text">
+                  <h4>Install App</h4>
+                  <p>Use browser Install option to add</p>
+                </div>
+              </div>
+            </div>
+
             <div className="settings-row clickable" onClick={() => window.open('https://github.com/sumitrawat2417/whatsapp-quick-send', '_blank')}>
               <div className="row-info">
                 <div className="row-icon neutral">
@@ -141,6 +229,7 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
               </div>
               <ExternalLink size={16} color="var(--color-text-3)" />
             </div>
+
             <div className="settings-row clickable" onClick={() => window.open('https://github.com/sumitrawat2417', '_blank')}>
               <div className="row-info">
                 <div className="row-icon neutral">
