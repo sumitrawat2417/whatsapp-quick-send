@@ -1,52 +1,94 @@
-/* ─── Overlay ───────────────────────────────────────── */
-.settings-overlay {
+/* ─── Full Screen Settings Page ─────────────────────── */
+.settings-page {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 900;
-  animation: fadeIn 200ms ease;
-}
-
-/* ─── Bottom Sheet ──────────────────────────────────── */
-.settings-drawer {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 85vh;
   max-width: 430px;
   margin: 0 auto;
-  background: var(--color-surface);
-  border-radius: 24px 24px 0 0;
+  background: var(--color-bg);
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  animation: settingsSlideUp 300ms cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.3);
+  animation: settingsPageIn 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.settings-header {
-  padding: 1.5rem;
+/* ─── Gradient Header ───────────────────────────────── */
+.settings-hero {
+  background: var(--grad-hero);
+  position: relative;
+  overflow: hidden;
+  padding: 2.5rem 1.5rem 2rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--color-border);
+  gap: 1rem;
 }
 
-.settings-title {
+/* Decorative blobs (matching main header) */
+.settings-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.settings-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -40px;
+  width: 160px; height: 160px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.back-btn {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  border-radius: 50%;
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-text-1);
+  cursor: pointer;
+  color: white;
+  transition: all 120ms ease;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.back-btn:active {
+  transform: scale(0.92);
+}
+
+.settings-hero-text {
+  z-index: 2;
+}
+
+.settings-hero-text h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.02em;
 }
 
 /* ─── Scrollable Content ────────────────────────────── */
 .settings-content {
   flex: 1;
   overflow-y: auto;
-  padding: 1.2rem;
-  padding-bottom: env(safe-area-inset-bottom, 2rem);
+  border-radius: 24px 24px 0 0;
+  margin-top: -16px;
+  background: var(--color-bg);
+  position: relative;
+  z-index: 10;
+  padding: 2rem 1.25rem;
+  padding-bottom: env(safe-area-inset-bottom, 3rem);
 }
 
 /* ─── Section Groups ────────────────────────────────── */
@@ -70,15 +112,16 @@
   opacity: 1;
 }
 
-/* ─── Settings Card (Container for items) ───────────── */
+/* ─── Settings Card ─────────────────────────────────── */
 .settings-card {
-  background: var(--color-surface-2);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 
-/* ─── Individual Setting Row ────────────────────────── */
+/* ─── Row Item ──────────────────────────────────────── */
 .settings-row {
   display: flex;
   justify-content: space-between;
@@ -102,9 +145,10 @@
 
 .settings-row.clickable:active {
   background: rgba(255, 255, 255, 0.04);
+  transform: scale(0.99);
 }
 
-/* Left side of a row */
+/* ─── Row Info (Left Side) ──────────────────────────── */
 .row-info {
   display: flex;
   align-items: center;
@@ -150,19 +194,19 @@
   color: var(--color-text-3);
 }
 
-/* Right side: value or input */
+/* ─── Row Right Side ────────────────────────────────── */
 .row-value {
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--color-text-2);
 }
 
-/* Country code inline input */
+/* Country code input */
 .code-input {
   width: 80px;
   height: 40px;
   border-radius: 10px;
-  background: var(--color-surface);
+  background: var(--color-surface-2);
   border: 1.5px solid var(--color-border);
   color: var(--color-text-1);
   font-family: var(--font-sans);
@@ -184,8 +228,8 @@
   align-items: center;
   gap: 0.5rem;
   background: var(--color-primary-dim);
-  padding: 0.7rem 1rem;
-  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
   margin-top: 0.8rem;
 }
 
@@ -214,7 +258,7 @@
 }
 
 /* ─── Animation ─────────────────────────────────────── */
-@keyframes settingsSlideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+@keyframes settingsPageIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
