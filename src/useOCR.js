@@ -7,17 +7,21 @@ export function useOCR() {
 
   // Helper function to find a phone number from a big block of messy OCR text
   const extractPhoneNumber = (text) => {
-    // 1. Remove all characters except digits, plus signs, and spaces
-    const rawNumbers = text.replace(/[^0-9+\s]/g, ' '); 
+    // 1. Regex to find blocks of text that look like phone numbers (allowing spaces, dashes, parens)
+    // Starts with optional +, then a digit, then 8-25 characters of digits/spaces/punctuation, ending in a digit
+    const regex = /(\+?[0-9][0-9\s\-.()]{8,25}[0-9])/g;
+    const matches = text.match(regex);
     
-    // 2. Split by spaces into individual words
-    const words = rawNumbers.split(/\s+/);
-    
-    // 3. Look for the first word that resembles a phone number (10 to 15 digits)
-    for (const word of words) {
-      const cleaned = word.replace('+', '');
-      if (cleaned.length >= 10 && cleaned.length <= 15) {
-        return word; // We found a valid looking number!
+    if (matches) {
+      for (const match of matches) {
+        // 2. Clean the match to only contain digits and a leading plus
+        const cleaned = match.replace(/[^0-9+]/g, '');
+        const digitsOnly = cleaned.replace('+', '');
+        
+        // 3. If it has between 10 and 15 digits, it's a valid phone number!
+        if (digitsOnly.length >= 10 && digitsOnly.length <= 15) {
+          return cleaned;
+        }
       }
     }
     return null;
