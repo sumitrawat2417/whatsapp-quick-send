@@ -13,15 +13,13 @@
 
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa&logoColor=white" alt="PWA" />
-  <img src="https://img.shields.io/badge/Offline-Capable-22C55E?style=flat-square" alt="Offline" />
   <img src="https://img.shields.io/badge/Privacy-Local_Only-F59E0B?style=flat-square" alt="Privacy First" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT License" />
 </div>
 
 ---
 
-**WA Quick Send** is a lightweight, privacy-first Progressive Web App that eliminates the most common friction in WhatsApp messaging — the need to save a contact before you can message them.
+**WA Quick Send** is a lightweight, privacy-first web utility that eliminates the most common friction in WhatsApp messaging — the need to save a contact before you can message them.
 
 Type a number, scan a business card, or tap a recent contact. One tap opens a WhatsApp chat, with your message pre-filled. No phonebook clutter. No account. No data leaving your device.
 
@@ -33,7 +31,6 @@ Type a number, scan a business card, or tap a recent contact. One tap opens a Wh
 
 ### ⚡ Instant Click-to-Chat
 - **Smart Number Input** — Accepts numbers in any format: with/without country code, spaces, or dashes
-- **Auto-Formatting** — Automatically sanitizes input and applies a default country code if missing
 - **Pre-filled Messaging** — Draft your message before opening WhatsApp so it lands pre-typed and ready to send
 
 ### 📷 OCR Number Scanning
@@ -43,13 +40,14 @@ Type a number, scan a business card, or tap a recent contact. One tap opens a Wh
 
 ### 🕒 Local Recent History
 - **Recent Numbers List** — A fast, scrollable list of numbers you've messaged
+- **Contact Naming** — Tag unknown numbers with custom names for easy future reference
 - **One-Tap Reconnect** — Follow up with any number without re-scanning or re-entering
-- **Fully Private** — History is stored in IndexedDB on your device and can be cleared anytime
+- **Fully Private** — History is stored in IndexedDB on your device
 
-### 📲 App-Like Experience (PWA)
-- **Add to Home Screen** — Install directly without going through an app store
-- **Full-Screen Mode** — Opens as a standalone app, not a browser tab
-- **Offline Capable** — Works without internet after the first load
+### ⚙️ Customizable Settings & Data Control
+- **Default Country Code** — Configure your local country code so you never have to type it again
+- **Export Data** — Download your entire chat history as a CSV file for backup or spreadsheets
+- **Clear History** — Wipe all local device data instantly with one tap
 
 ---
 
@@ -60,21 +58,23 @@ graph TD
     App[WA Quick Send] --> Input[Number Input]
     App --> Scanner[OCR Scanner]
     App --> History[Recent History]
+    App --> Settings[Settings]
 
     Input --> Formatter[Number Formatter]
     Scanner --> Tesseract[Tesseract.js - Local OCR]
 
-    Formatter --> DeepLink["WhatsApp Deep Link\nwa.me/91XXXXXXXXXX"]
+    Formatter --> DeepLink["WhatsApp Deep Link\nwa.me/XXXXXXXXXX"]
     Tesseract --> Formatter
 
     History --> LocalForage[(LocalForage\nIndexedDB)]
     Formatter --> LocalForage
+    Settings --> LocalForage
 ```
 
 **How it works:**
-- **Number Formatter:** Strips non-numeric characters, applies the default country code, and constructs a `https://wa.me/` deep link that WhatsApp's app protocol handles natively.
-- **OCR Scanner:** Tesseract.js runs entirely in the browser via WebAssembly. Images are never uploaded anywhere — recognition happens locally on the device.
-- **Local History:** `localforage` wraps IndexedDB with a simple async API. All recently used numbers are stored and retrieved from the device's own storage.
+- **Number Formatter:** Strips non-numeric characters, applies your default country code, and constructs a `https://wa.me/` deep link.
+- **OCR Scanner:** Tesseract.js runs entirely in the browser via WebAssembly. Images are never uploaded anywhere.
+- **Local Storage:** `localforage` wraps IndexedDB to securely persist recent contacts, names, and settings locally on your device.
 
 ---
 
@@ -83,44 +83,11 @@ graph TD
 | Layer | Technology | Why |
 |-------|-----------|-----|
 | UI Framework | React 19 | Component-based, fast, wide ecosystem |
-| Build Tool | Vite 8 | Instant dev server, optimized PWA builds |
+| Build Tool | Vite 8 | Instant dev server, optimized builds |
 | OCR | Tesseract.js 7 | 100% local, WebAssembly-powered text recognition |
 | Storage | localforage (IndexedDB) | Async local history without cloud dependency |
 | Icons | lucide-react | Clean, modern, tree-shakable icon set |
-| Styling | Vanilla CSS | Full design control, zero overhead, premium animations |
-| PWA | Web App Manifest + Service Worker | Installable and offline-capable |
-| Deployment | GitHub Pages | Static delivery, zero infra |
-
----
-
-## 📂 Project Structure
-
-```text
-whatsapp-quick-send/
-├── public/
-│   ├── favicon.svg
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   └── manifest.webmanifest
-├── src/
-│   ├── components/
-│   │   ├── NumberInput/        ← Smart phone number input field
-│   │   ├── Scanner/            ← Camera + image OCR flow
-│   │   ├── RecentHistory/      ← Local history drawer
-│   │   └── ui/                 ← Shared buttons, modals, loaders
-│   ├── hooks/
-│   │   ├── useHistory.js       ← localforage read/write
-│   │   └── useOCR.js           ← Tesseract.js wrapper
-│   ├── utils/
-│   │   └── phoneFormatter.js   ← Number cleaning & deep link builder
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-├── index.html
-├── vite.config.js
-├── package.json
-└── README.md
-```
+| Styling | Vanilla CSS | Custom premium dark UI, smooth animations |
 
 ---
 
@@ -145,28 +112,24 @@ npm run dev
 # → http://localhost:5173
 ```
 
-### Build for Production
-
-```bash
-npm run build
-npm run preview
-```
-
 ---
 
 ## 🔮 Roadmap
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Manual number input + WhatsApp deep link | ⏳ In Progress | Core flow |
-| Pre-filled message input | ⏳ In Progress | Optional text before opening chat |
-| Local recent history | 🔲 Planned | IndexedDB via localforage |
-| OCR camera scan | 🔲 Planned | Tesseract.js, fully local |
-| Image upload OCR | 🔲 Planned | Gallery photo → number extraction |
-| PWA manifest + offline support | 🔲 Planned | Service worker caching |
-| Multi-number extraction | 🔲 Future | Pick from multiple detected numbers |
-| Native share target | 🔲 Future | Accept numbers shared from other apps |
-| Message templates | 🔲 Future | Save 2–3 reusable quick messages |
+| Feature | Status |
+|---------|--------|
+| Manual number input + WhatsApp deep link | ✅ Complete |
+| Pre-filled message input | ✅ Complete |
+| Local recent history | ✅ Complete |
+| Contact Naming / Aliasing | ✅ Complete |
+| OCR camera scan (Tesseract.js) | ✅ Complete |
+| Image upload OCR | ✅ Complete |
+| Settings: Default Country Code | ✅ Complete |
+| Export Data to CSV | ✅ Complete |
+| PWA manifest + offline support | 🔲 Planned |
+| Multi-number extraction from images | 🔲 Future |
+| Native share target (Receive numbers from other apps) | 🔲 Future |
+| Message templates | 🔲 Future |
 
 ---
 

@@ -67,7 +67,11 @@ function App() {
       {/* Header Section */}
       <div className="header">
         <div className="icon-wrapper">
-          <MessageCircle size={24} color="white" />
+          <img 
+            src={`${import.meta.env.BASE_URL}favicon.svg`} 
+            alt="App Logo" 
+            style={{ width: '28px', height: '28px', filter: 'brightness(0) invert(1)' }} 
+          />
         </div>
         <h1 className="title">WA Quick Send.</h1>
         <p className="subtitle">Message anyone instantly. No contact saving.</p>
