@@ -1,19 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
-import { X, Camera, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import './ScannerModal.css';
 
-export default function ScannerModal({ onClose, onScanComplete, isProcessing, scanProgress }) {
+export default function ScannerModal({ onClose, onScanSuccess, processImage, isProcessing, scanProgress }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [error, setError] = useState('');
+  
+  // Use a ref to track if we are currently analyzing an image so we don't overlap scans
+  const isAnalyzingRef = useRef(false);
+  const scanIntervalRef = useRef(null);
 
-  // 1. Turn on the camera when the modal is opened
+  // 1. Turn on the camera
   useEffect(() => {
     async function startCamera() {
       try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' } // 'environment' requests the back camera on phones
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
         });
         setStream(mediaStream);
         if (videoRef.current) {
@@ -27,53 +31,83 @@ export default function ScannerModal({ onClose, onScanComplete, isProcessing, sc
     
     startCamera();
 
-    // Cleanup function: Turn off the camera when the modal is closed
+    // Cleanup: Turn off camera when closed
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+      }
     };
   }, []);
 
-  // 2. Handle the "Tap to Extract" button
-  const handleCapture = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    
-    // Set the invisible canvas to the exact size of the video feed
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    // Draw the current video frame onto the canvas
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // Convert that canvas drawing into a standard JPEG image string
-    const imageDataUrl = canvas.toDataURL('image/jpeg');
-    
-    // Send it back to App.jsx to be processed by useOCR
-    onScanComplete(imageDataUrl);
-  };
+  // 2. Auto-Scan Loop (Like a QR Scanner)
+  useEffect(() => {
+    if (!stream || error) return; // Wait until camera is active
 
-  // 3. Handle the "Upload from Gallery" button
-  const handleFileUpload = (e) => {
+    const attemptScan = async () => {
+      // Don't start a new scan if one is already running
+      if (isAnalyzingRef.current || !videoRef.current || !canvasRef.current) return;
+      
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      // Safety check: wait for video to have actual dimensions
+      if (video.videoWidth === 0) return;
+
+      isAnalyzingRef.current = true;
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageDataUrl = canvas.toDataURL('image/jpeg');
+      
+      // Run the OCR engine silently in the background
+      const extractedNumber = await processImage(imageDataUrl);
+      
+      if (extractedNumber) {
+        // Boom! We found a number. Stop the loop and return it.
+        if (scanIntervalRef.current) clearInterval(scanIntervalRef.current);
+        onScanSuccess(extractedNumber);
+      } else {
+        // No number found, release the lock so the next interval can try again
+        isAnalyzingRef.current = false;
+      }
+    };
+
+    // Run a frame analysis every 2 seconds
+    scanIntervalRef.current = setInterval(attemptScan, 2000);
+
+    return () => clearInterval(scanIntervalRef.current);
+  }, [stream, error, processImage, onScanSuccess]);
+
+  // 3. Handle the "Upload from Gallery" fallback button
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (scanIntervalRef.current) clearInterval(scanIntervalRef.current); // Pause auto-scan
+      
       const reader = new FileReader();
-      reader.onload = (event) => {
-        onScanComplete(event.target.result);
+      reader.onload = async (event) => {
+        const extractedNumber = await processImage(event.target.result);
+        if (extractedNumber) {
+          onScanSuccess(extractedNumber);
+        } else {
+          alert("No phone number found in that image. Please try again!");
+          // Resume auto-scan if they failed an upload
+          scanIntervalRef.current = setInterval(() => {}, 2000); 
+        }
       };
-      reader.readAsDataURL(file); // Convert uploaded file to image string
+      reader.readAsDataURL(file);
     }
   };
 
   return (
     <div className="modal-overlay">
-      
       <div className="modal-header">
-        <h3>Scan Number</h3>
+        <h3>Auto-Scanning...</h3>
         <button className="close-btn" onClick={onClose} disabled={isProcessing}>
           <X size={24} />
         </button>
@@ -87,7 +121,7 @@ export default function ScannerModal({ onClose, onScanComplete, isProcessing, sc
             <video 
               ref={videoRef} 
               autoPlay 
-              playsInline /* crucial for iOS Safari so it doesn't open full screen player */
+              playsInline 
               muted 
               className="video-feed" 
             />
@@ -99,33 +133,24 @@ export default function ScannerModal({ onClose, onScanComplete, isProcessing, sc
         {/* Hidden canvas used to grab the snapshot behind the scenes */}
         <canvas ref={canvasRef} style={{ display: 'none' }} />
         
-        {/* Show a cool loading spinner when Tesseract is analyzing the image */}
-        {isProcessing && (
+        {/* We can show a subtle indicator that it's analyzing instead of a full blocking loader */}
+        {isProcessing && !error && (
           <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
-            background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', 
-            justifyContent: 'center', alignItems: 'center', color: 'var(--primary)',
-            zIndex: 10
+            position: 'absolute', top: 10, right: 10,
+            background: 'rgba(0,0,0,0.6)', padding: '0.5rem 1rem', borderRadius: '20px',
+            display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)',
+            fontSize: '0.8rem', zIndex: 10
           }}>
-            <Loader2 size={48} style={{ animation: 'spin 1s linear infinite', marginBottom: '1rem' }} />
-            <p style={{ fontWeight: 600, color: 'white' }}>Extracting text... {scanProgress}%</p>
+            <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+            Analyzing {scanProgress}%
           </div>
         )}
       </div>
 
       <div className="modal-controls">
-        <button 
-          className="capture-btn" 
-          onClick={handleCapture} 
-          disabled={isProcessing || error}
-        >
-          <Camera size={20} />
-          Tap to Extract Number
-        </button>
-
         <label className="upload-label">
           <ImageIcon size={20} />
-          Upload from Gallery
+          Upload from Gallery Instead
           <input 
             type="file" 
             accept="image/*" 
@@ -135,7 +160,6 @@ export default function ScannerModal({ onClose, onScanComplete, isProcessing, sc
           />
         </label>
       </div>
-      
     </div>
   );
 }

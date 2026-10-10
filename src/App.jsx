@@ -38,15 +38,9 @@ function App() {
     setShowScanner(true);
   };
 
-  const handleImageCaptured = async (imageDataUrl) => {
-    const extractedNumber = await processImage(imageDataUrl);
-    
-    if (extractedNumber) {
-      setPhoneNumber(extractedNumber);
-      setShowScanner(false); // Close modal on success
-    } else {
-      alert("No phone number found in that image. Please try again!");
-    }
+  const handleScanSuccess = (extractedNumber) => {
+    setPhoneNumber(extractedNumber);
+    setShowScanner(false); // Close modal on success
   };
 
   return (
@@ -112,7 +106,8 @@ function App() {
       {showScanner && (
         <ScannerModal 
           onClose={() => setShowScanner(false)}
-          onScanComplete={handleImageCaptured}
+          onScanSuccess={handleScanSuccess}
+          processImage={processImage}
           isProcessing={isScanning}
           scanProgress={scanProgress}
         />
