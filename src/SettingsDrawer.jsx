@@ -272,17 +272,7 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
               <ChevronLeft size={16} color="var(--color-text-3)" style={{ transform: 'rotate(180deg)' }} />
             </div>
 
-            <div className="settings-row clickable" onClick={() => alert("To install, tap your browser menu and select 'Add to Home Screen'")}>
-              <div className="row-info">
-                <div className="row-icon brand" style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-danger)' }}>
-                  <FileDown size={20} />
-                </div>
-                <div className="row-text">
-                  <h4>Install App</h4>
-                  <p>Use browser Install option to add</p>
-                </div>
-              </div>
-            </div>
+
 
             <div className="settings-row clickable" onClick={() => window.open('https://github.com/sumitrawat2417/whatsapp-quick-send', '_blank')}>
               <div className="row-info">
