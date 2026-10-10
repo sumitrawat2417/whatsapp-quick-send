@@ -1,0 +1,172 @@
+import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, X } from 'lucide-react';
+import localforage from 'localforage';
+import './SettingsDrawer.css';
+
+const HISTORY_KEY = 'wa_quick_send_history';
+
+export default function SettingsDrawer({ onClose, settings, updateSetting, history }) {
+
+  // Clear all history from IndexedDB
+  const handleClearHistory = async () => {
+    if (window.confirm("Are you sure you want to permanently delete all history?")) {
+      await localforage.removeItem(HISTORY_KEY);
+      window.location.reload(); // Simplest way to refresh state across all hooks
+    }
+  };
+
+  // Export history as a CSV file download
+  const handleExportHistory = () => {
+    if (history.length === 0) {
+      alert("No history to export yet!");
+      return;
+    }
+
+    const headers = "Number,Name,Last Message,Date";
+    const rows = history.map(item => {
+      const date = new Date(item.timestamp).toLocaleString();
+      // Wrap fields in quotes to handle commas inside messages
+      return `"${item.number}","${item.name || ''}","${(item.lastMessage || '').replace(/"/g, '""')}","${date}"`;
+    });
+
+    const csvContent = [headers, ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `wa-quick-send-history-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <>
+      <div className="settings-overlay" onClick={onClose}></div>
+      <div className="settings-drawer">
+
+        <div className="settings-header">
+          <div className="settings-title">
+            <Settings size={22} color="var(--color-primary)" />
+            Settings
+          </div>
+          <button className="close-btn" onClick={onClose}>
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="settings-content">
+
+          {/* ─── General ──────────────────────────── */}
+          <div className="settings-section">
+            <div className="section-label">General</div>
+            <div className="settings-card">
+              <div className="settings-row">
+                <div className="row-info">
+                  <div className="row-icon brand">
+                    <Globe size={20} />
+                  </div>
+                  <div className="row-text">
+                    <h4>Default Country Code</h4>
+                    <p>Auto-prepended to 10-digit numbers</p>
+                  </div>
+                </div>
+                <input 
+                  type="text"
+                  className="code-input"
+                  value={settings.countryCode}
+                  onChange={(e) => updateSetting('countryCode', e.target.value.replace(/\D/g, ''))}
+                  placeholder="91"
+                  maxLength={4}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ─── Data & Privacy ───────────────────── */}
+          <div className="settings-section">
+            <div className="section-label">Data & Privacy</div>
+            <div className="settings-card">
+              <div className="settings-row clickable" onClick={handleExportHistory}>
+                <div className="row-info">
+                  <div className="row-icon neutral">
+                    <FileDown size={20} />
+                  </div>
+                  <div className="row-text">
+                    <h4>Export History (CSV)</h4>
+                    <p>Open in Excel or Google Sheets</p>
+                  </div>
+                </div>
+                <span className="row-value">{history.length} records</span>
+              </div>
+              <div className="settings-row clickable" onClick={handleClearHistory}>
+                <div className="row-info">
+                  <div className="row-icon danger">
+                    <Trash2 size={20} />
+                  </div>
+                  <div className="row-text">
+                    <h4>Clear All History</h4>
+                    <p>Permanently delete all saved contacts</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="privacy-badge">
+              <Shield size={18} />
+              <p>All data stays on this device. Nothing is uploaded.</p>
+            </div>
+          </div>
+
+          {/* ─── About ────────────────────────────── */}
+          <div className="settings-section">
+            <div className="section-label">About</div>
+            <div className="settings-card">
+              <div className="settings-row">
+                <div className="row-info">
+                  <div className="row-icon brand">
+                    <Settings size={20} />
+                  </div>
+                  <div className="row-text">
+                    <h4>WA Quick Send</h4>
+                    <p>Version 1.0.0 (Offline-first PWA)</p>
+                  </div>
+                </div>
+              </div>
+              <div className="settings-row clickable" onClick={() => window.open('https://github.com/sumitrawat2417/whatsapp-quick-send', '_blank')}>
+                <div className="row-info">
+                  <div className="row-icon neutral">
+                    <Code2 size={20} />
+                  </div>
+                  <div className="row-text">
+                    <h4>Source Code</h4>
+                    <p>Open source on GitHub</p>
+                  </div>
+                </div>
+                <ExternalLink size={16} color="var(--color-text-3)" />
+              </div>
+              <div className="settings-row clickable" onClick={() => window.open('https://github.com/sumitrawat2417', '_blank')}>
+                <div className="row-info">
+                  <div className="row-icon neutral">
+                    <Code2 size={20} />
+                  </div>
+                  <div className="row-text">
+                    <h4>Developer</h4>
+                    <p>Forbit (Sumit Rawat)</p>
+                  </div>
+                </div>
+                <ExternalLink size={16} color="var(--color-text-3)" />
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-footer">
+            <p>Not affiliated with WhatsApp or Meta.</p>
+            <p style={{ marginTop: '0.3rem' }}>
+              Built by <a href="https://github.com/sumitrawat2417" target="_blank" rel="noreferrer">Forbit (Sumit Rawat)</a>
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
+}

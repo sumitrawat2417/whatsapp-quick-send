@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { MessageCircle, Phone, Send, ScanLine, Type, History } from 'lucide-react';
+import { MessageCircle, Phone, Send, ScanLine, Type, History, Settings } from 'lucide-react';
 import { useOCR } from './useOCR';
 import { useHistory } from './useHistory';
+import { useSettings } from './useSettings';
 import ScannerModal from './ScannerModal';
 import HistoryDrawer from './HistoryDrawer';
+import SettingsDrawer from './SettingsDrawer';
 import './App.css';
 import './index.css';
 
@@ -12,10 +14,12 @@ function App() {
   const [message, setMessage] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   
-  // Bring in our custom OCR and History engines
+  // Bring in our custom engines
   const { processImage, isScanning, scanProgress } = useOCR();
   const { history, saveInteraction, updateName, deleteRecord } = useHistory();
+  const { settings, updateSetting } = useSettings();
 
   const handleSend = () => {
     // Basic formatting: remove all non-numeric characters from the input
@@ -24,9 +28,9 @@ function App() {
     // Safety check: Don't do anything if no number exists after cleaning
     if (!cleanedNumber) return;
 
-    // Temporary fix: Default to India country code (+91) if a 10-digit number is entered
-    if (cleanedNumber.length === 10) {
-      cleanedNumber = '91' + cleanedNumber;
+    // Auto-prepend the user's configured country code for 10-digit numbers
+    if (cleanedNumber.length === 10 && settings.countryCode) {
+      cleanedNumber = settings.countryCode + cleanedNumber;
     }
 
     // Save this interaction to our local database before leaving the app
@@ -68,14 +72,25 @@ function App() {
         <h1 className="title">WA Quick Send.</h1>
         <p className="subtitle">Message anyone instantly. No contact saving.</p>
         
-        {/* History Button (Top Right) */}
-        <button 
-          className="history-btn"
-          onClick={() => setShowHistory(true)} 
-          title="Recent History"
-        >
-          <History size={22} />
-        </button>
+        {/* Header Action Buttons (Top Right) */}
+        <div style={{ position: 'absolute', top: '3rem', right: '1.5rem', display: 'flex', gap: '0.5rem', zIndex: 5 }}>
+          <button 
+            className="history-btn"
+            onClick={() => setShowHistory(true)} 
+            title="Recent History"
+            style={{ position: 'static' }}
+          >
+            <History size={22} />
+          </button>
+          <button 
+            className="history-btn"
+            onClick={() => setShowSettings(true)} 
+            title="Settings"
+            style={{ position: 'static' }}
+          >
+            <Settings size={22} />
+          </button>
+        </div>
       </div>
 
       {/* Form Section */}
@@ -144,6 +159,16 @@ function App() {
           updateName={updateName}
           deleteRecord={deleteRecord}
           onSelectContact={handleSelectContact}
+        />
+      )}
+
+      {/* Render the Settings Drawer if active */}
+      {showSettings && (
+        <SettingsDrawer 
+          onClose={() => setShowSettings(false)}
+          settings={settings}
+          updateSetting={updateSetting}
+          history={history}
         />
       )}
     </div>
