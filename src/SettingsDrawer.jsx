@@ -1,10 +1,15 @@
-import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, ChevronLeft, Sun, Moon, Monitor, Check } from 'lucide-react';
+import { Globe, Trash2, FileDown, Shield, Settings, Code2, ExternalLink, ChevronLeft, Sun, Moon, Monitor, Check, FileText } from 'lucide-react';
+import { useState } from 'react';
 import localforage from 'localforage';
+import LegalModal from './LegalModal';
+import privacyPolicyMd from '../docs/privacy_policy_wa_quick_send.md?raw';
+import termsMd from '../docs/terms_and_conditions_wa_quick_send.md?raw';
 import './SettingsDrawer.css';
 
 const HISTORY_KEY = 'wa_quick_send_history';
 
 export default function SettingsDrawer({ onClose, settings, updateSetting, history }) {
+  const [activeLegalDoc, setActiveLegalDoc] = useState(null);
 
   // Clear all history from IndexedDB
   const handleClearHistory = async () => {
@@ -195,10 +200,10 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
               <ChevronLeft size={16} color="var(--color-text-3)" style={{ transform: 'rotate(180deg)' }} />
             </div>
 
-            <div className="settings-row clickable" onClick={() => alert("Privacy Policy coming soon!")}>
+            <div className="settings-row clickable" onClick={() => setActiveLegalDoc('privacy')}>
               <div className="row-info">
                 <div className="row-icon neutral">
-                  <FileDown size={20} />
+                  <FileText size={20} />
                 </div>
                 <div className="row-text">
                   <h4>Privacy Policy</h4>
@@ -207,10 +212,10 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
               <ChevronLeft size={16} color="var(--color-text-3)" style={{ transform: 'rotate(180deg)' }} />
             </div>
 
-            <div className="settings-row clickable" onClick={() => alert("Terms of Use coming soon!")}>
+            <div className="settings-row clickable" onClick={() => setActiveLegalDoc('terms')}>
               <div className="row-info">
                 <div className="row-icon neutral">
-                  <FileDown size={20} />
+                  <FileText size={20} />
                 </div>
                 <div className="row-text">
                   <h4>Terms of Use</h4>
@@ -293,6 +298,22 @@ export default function SettingsDrawer({ onClose, settings, updateSetting, histo
         </div>
 
       </div>
+      
+      {activeLegalDoc === 'privacy' && (
+        <LegalModal 
+          title="Privacy Policy" 
+          content={privacyPolicyMd} 
+          onClose={() => setActiveLegalDoc(null)} 
+        />
+      )}
+
+      {activeLegalDoc === 'terms' && (
+        <LegalModal 
+          title="Terms & Conditions" 
+          content={termsMd} 
+          onClose={() => setActiveLegalDoc(null)} 
+        />
+      )}
     </div>
   );
 }
