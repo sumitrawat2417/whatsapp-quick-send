@@ -22,7 +22,7 @@
 
 ## 📖 What is WA Quick Send?
 
-**WA Quick Send** eliminates the #1 friction in WhatsApp — having to save a temporary contact just to send one message.
+**WA Quick Send** eliminates the first friction in WhatsApp — having to save a temporary contact just to send one message or document.
 
 > Delivery agent sharing their number? Vendor from a screenshot? Number on a business card? Just paste it, scan it, or type it. One tap. Done. No phonebook clutter. No account needed.
 
