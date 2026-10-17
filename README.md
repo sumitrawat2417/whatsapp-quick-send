@@ -69,7 +69,7 @@ This is like Apple's "Live Text" or Google Lens, built directly into your browse
 - **Wipe data** instantly with a single button.
 
 ### ⚙️ Smart Settings
-- **Default Country Code** — set once, never type `+91` again.
+- **Default Country Code** — set once, never type `+91` again. (Default India country code is being used)
 - Auto-formats all 10-digit numbers using your configured prefix.
 - **Green validation tick** — appears as soon as a number looks correct.
 - **Theme toggle** — Dark, Light, or follow System preference.
